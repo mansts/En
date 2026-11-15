@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Who killed Mansur?</title>
+  <style>
+    /* STRICT MINIMALIST EDITORIAL AESTHETIC — SHARP 90-DEGREE CORNERS EVERYWHERE */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      border-radius: 0px !important;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: #F7F5F0;
+      color: #141A24;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      user-select: none;
+    }
+
+    #viewport {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 1;
+      touch-action: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background-color: #F7F5F0;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* ONLY ACTIVE GAMEPLAY HUD ELEMENT: TOP-RIGHT SHARP "RESET" BUTTON */
+    #reset-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 20;
+      background-color: #F7F5F0;
+      color: #141A24;
+      border: 2px solid #141A24;
+      padding: 10px 18px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      cursor: pointer;
+      transition: background-color 0.14s ease, color 0.14s ease;
+    }
+
+    #reset-btn:hover {
+      background-color: #141A24;
+      color: #F7F5F0;
+    }
+
+    /* EDITORIAL MILK/CREAM CARDS WITH 2PX SOLID INK BORDERS */
+    .editorial-card {
+      background-color: #F7F5F0;
+      border: 2px solid #141A24;
+      box-shadow: 6px 6px 0px #141A24;
+    }
+
+    /* START SCREEN OVERLAY ON TOP OF LIVE ANIMATED 3D SCENE */
+    #title-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 30;
+      background-color: rgba(247, 245, 240, 0.45);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      transition: opacity 0.22s ease;
+    }
+
+    .title-card {
+      width: 100%;
+      max-width: 420px;
+      padding: 40px 32px;
+      text-align: center;
+    }
+
+    .title-card h1 {
+      margin: 0 0 28px 0;
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #141A24;
+    }
+
+    .btn-ink {
+      width: 100%;
+      background-color: #141A24;
+      color: #F7F5F0;
+      border: 2px solid #141A24;
+      padding: 14px 20px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      cursor: pointer;
+      transition: background-color 0.14s ease, color 0.14s ease;
+    }
+
+    .btn-ink:hover {
+      background-color: #B91C1C;
+      border-color: #141A24;
+      color: #F7F5F0;
+    }
+
+    /* CENTERED CLUE / WITNESS INSPECTION MODAL */
+    #inspect-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 35;
+      background-color: rgba(20, 26, 36, 0.28);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .inspect-card {
+      width: 100%;
+      max-width: 460px;
+      padding: 24px 26px;
+    }
+
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2px solid #141A24;
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+
+    .category-tag {
+      display: inline-block;
+      background-color: #141A24;
+      color: #F7F5F0;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      padding: 4px 10px;
+    }
+
+    .category-tag.blood {
+      background-color: #B91C1C;
+    }
+
+    .category-tag.diary {
+      background-color: #1E3A5F;
+    }
+
+    .category-tag.text {
+      background-color: #14532D;
+    }
+
+    .category-tag.witness {
+      background-color: #78350F;
+    }
+
+    .btn-close-x {
+      background-color: #F7F5F0;
+      border: 2px solid #141A24;
+      color: #141A24;
+      padding: 3px 10px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-close-x:hover {
+      background-color: #141A24;
+      color: #F7F5F0;
+    }
+
+    #inspect-title {
+      margin: 0 0 10px 0;
+      font-size: 21px;
+      font-weight: 800;
+      color: #141A24;
+    }
+
+    #inspect-text {
+      margin: 0 0 20px 0;
+      font-size: 15px;
+      line-height: 1.55;
+      color: #141A24;
+    }
+
+    /* HEAVY STEEL SAFE KEYPAD MODAL (CODE = 9611) */
+    #safe-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background-color: rgba(20, 26, 36, 0.34);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .safe-card {
+      width: 100%;
+      max-width: 310px;
+      padding: 22px;
+    }
+
+    #safe-display {
+      width: 100%;
+      height: 52px;
+      background-color: #EAE6DC;
+      border: 2px solid #141A24;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.45em;
+      color: #141A24;
+      margin-bottom: 6px;
+    }
+
+    #safe-status {
+      height: 18px;
+      text-align: center;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #B91C1C;
+      margin-bottom: 10px;
+    }
+
+    .keypad-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .key-btn {
+      height: 44px;
+      background-color: #EAE6DC;
+      border: 2px solid #141A24;
+      color: #141A24;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .key-btn:hover {
+      background-color: #141A24;
+      color: #F7F5F0;
+    }
+
+    .key-btn.clear:hover {
+      background-color: #B91C1C;
+      color: #F7F5F0;
+    }
+
+    .key-btn.unlock {
+      background-color: #14532D;
+      color: #F7F5F0;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+    }
+
+    .key-btn.unlock:hover {
+      background-color: #141A24;
+      color: #F7F5F0;
+    }
+
+    /* FINAL CASE SOLVED OVERLAY */
+    #solved-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background-color: rgba(20, 26, 36, 0.42);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .solved-card {
+      width: 100%;
+      max-width: 450px;
+      padding: 32px 28px;
+      text-align: center;
+    }
+
+    .solved-meta {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .solved-tag {
+      display: inline-block;
+      background-color: #14532D;
+      color: #F7F5F0;
+      border: 2px solid #141A24;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      padding: 5px 12px;
+    }
+
+    .score-tag {
+      display: inline-block;
+      background-color: #1E3A5F;
+      color: #F7F5F0;
+      border: 2px solid #141A24;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      padding: 5px 12px;
+    }
+
+    .solved-card h2 {
+      margin: 0 0 10px 0;
+      font-size: 25px;
+      font-weight: 800;
+      color: #141A24;
+    }
+
+    .solved-desc {
+      margin: 0 0 20px 0;
+      font-size: 15px;
+      line-height: 1.55;
+      color: #141A24;
+    }
+
+    /* GREEN-AND-GOLD HARDCOVER "BIOLOGY" TEXTBOOK ILLUSTRATION */
+    .biology-book-cover {
+      width: 162px;
+      height: 210px;
+      margin: 0 auto 22px auto;
+      background-color: #14532D;
+      border: 2px solid #141A24;
+      padding: 10px;
+      color: #F7F5F0;
+    }
+
+    .biology-book-frame {
+      border: 2px solid #D4AF37;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 10px 8px;
+    }
+
+    .biology-book-title {
+      background-color: #D4AF37;
+      color: #141A24;
+      border: 2px solid #141A24;
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: 0.08em;
+      padding: 6px 0;
+    }
+
+    .biology-book-svg {
+      width: 100%;
+      height: 76px;
+    }
+
+    .biology-book-sub {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      color: #FDE68A;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FULLSCREEN PURE HTML5 CANVAS 3D VIEWPORT -->
+  <div id="viewport">
+    <canvas id="game-canvas"></canvas>
+  </div>
+
+  <!-- ONLY GAMEPLAY HUD ELEMENT: TOP-RIGHT "RESET" BUTTON -->
+  <button id="reset-btn" type="button" class="hidden">RESET</button>
+
+  <!-- START SCREEN CARD ON TOP OF LIVE ANIMATED 3D SCENE -->
+  <div id="title-overlay">
+    <div class="editorial-card title-card">
+      <h1>Who killed Mansur?</h1>
+      <button id="investigate-btn" type="button" class="btn-ink">INVESTIGATE</button>
+    </div>
+  </div>
+
+  <!-- CLUE & WITNESS INSPECTION MODAL -->
+  <div id="inspect-overlay" class="hidden">
+    <div class="editorial-card inspect-card">
+      <div class="modal-header">
+        <span id="inspect-tag" class="category-tag">EVIDENCE</span>
+        <button id="inspect-x" type="button" class="btn-close-x">X</button>
+      </div>
+      <h2 id="inspect-title">Clue Title</h2>
+      <p id="inspect-text">Clue description.</p>
+      <button id="inspect-close" type="button" class="btn-ink">CLOSE</button>
+    </div>
+  </div>
+
+  <!-- STEEL SAFE KEYPAD MODAL (CODE = 9611) -->
+  <div id="safe-overlay" class="hidden">
+    <div class="editorial-card safe-card">
+      <div class="modal-header">
+        <span class="category-tag">SAFE</span>
+        <button id="safe-x" type="button" class="btn-close-x">X</button>
+      </div>
+      <div id="safe-display">_ _ _ _</div>
+      <div id="safe-status"></div>
+      <div class="keypad-grid">
+        <button type="button" class="key-btn" data-digit="1">1</button>
+        <button type="button" class="key-btn" data-digit="2">2</button>
+        <button type="button" class="key-btn" data-digit="3">3</button>
+        <button type="button" class="key-btn" data-digit="4">4</button>
+        <button type="button" class="key-btn" data-digit="5">5</button>
+        <button type="button" class="key-btn" data-digit="6">6</button>
+        <button type="button" class="key-btn" data-digit="7">7</button>
+        <button type="button" class="key-btn" data-digit="8">8</button>
+        <button type="button" class="key-btn" data-digit="9">9</button>
+        <button type="button" class="key-btn clear" id="safe-clear">CLEAR</button>
+        <button type="button" class="key-btn" data-digit="0">0</button>
+        <button type="button" class="key-btn unlock" id="safe-unlock">UNLOCK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FINAL CASE SOLVED SCREEN -->
+  <div id="solved-overlay" class="hidden">
+    <div class="editorial-card solved-card">
+      <div class="solved-meta">
+        <span class="solved-tag">CASE SOLVED</span>
+        <span class="score-tag">100 / 100</span>
+      </div>
+      <h2>Killer: BIOLOGY</h2>
+      <p class="solved-desc">No human killed Mansur—severe exam exhaustion from studying Biology all night caused him to collapse! Code 9-6-1-1 unlocked his green-and-gold textbook inside the Archive safe.</p>
+      <div class="biology-book-cover" aria-label="BIOLOGY Hardcover Textbook">
+        <div class="biology-book-frame">
+          <div class="biology-book-title">BIOLOGY</div>
+          <svg class="biology-book-svg" viewBox="0 0 120 76" fill="none">
+            <path d="M12 14 C 36 14, 36 62, 60 62 C 84 62, 84 14, 108 14" stroke="#D4AF37" stroke-width="3"/>
+            <path d="M12 62 C 36 62, 36 14, 60 14 C 84 14, 84 62, 108 62" stroke="#F7F5F0" stroke-width="3"/>
+            <line x1="24" y1="24" x2="24" y2="52" stroke="#D4AF37" stroke-width="2"/>
+            <line x1="48" y1="24" x2="48" y2="52" stroke="#D4AF37" stroke-width="2"/>
+            <line x1="72" y1="24" x2="72" y2="52" stroke="#D4AF37" stroke-width="2"/>
+            <line x1="96" y1="24" x2="96" y2="52" stroke="#D4AF37" stroke-width="2"/>
+          </svg>
+          <div class="biology-book-sub">ARCHIVE EDITION</div>
+        </div>
+      </div>
+      <button id="play-again-btn" type="button" class="btn-ink">PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      'use strict';
+
+      const canvas = document.getElementById('game-canvas');
+      const ctx = canvas.getContext('2d');
+
+      /**
+       * 1. ALL 15 INTERACTIVE CLUES & WITNESSES ACROSS 4 CONNECTED LOCATIONS
+       * Safe Combination: 9 - 6 - 1 - 1
+       */
+      const CLUES = {
+        // --- 1. STUDY (x: -7 to -1, z: -5 to 1) ---
+        study_clock: {
+          tag: 'EVIDENCE',
+          title: 'Wall Clock',
+          text: 'The brass clock hands stopped dead at 9 o’clock. The first digit of the safe combination is 9.'
+        },
+        study_diary: {
+          tag: 'DIARY',
+          title: "Mansur's Diary",
+          text: '"03:15 AM — My head is spinning, yet I still have four chapters left before tomorrow’s final exam. If I don’t lock the book in the Archive safe, I will never sleep."'
+        },
+        study_rug_blood: {
+          tag: 'BLOOD',
+          title: 'Bloodstain on Study Rug',
+          text: 'A dried crimson stain on the woven wool rug—consistent with an exhaustion nosebleed while hunched over the desk.'
+        },
+        study_bookshelf: {
+          tag: 'TEXT',
+          title: 'Bookshelf Gap',
+          text: 'An empty slot stands right in the middle of the science shelf. A thick green-and-gold volume is missing from the set.'
+        },
+        study_mug: {
+          tag: 'EVIDENCE',
+          title: 'Shattered Porcelain Mug',
+          text: 'A broken white coffee mug lies beside dark espresso splatters on the oak floorboards near the desk.'
+        },
+
+        // --- 2. CORRIDOR (x: -1 to 3, z: -5 to 3) ---
+        corridor_blood_trail: {
+          tag: 'BLOOD',
+          title: 'Trail of 6 Blood Drops & Wall Scratch',
+          text: 'Exactly 6 crimson drops lead across the corridor floorboards toward the Archive doorway, with the numeral "6" scratched beside the frame—giving the second digit: 6.'
+        },
+        corridor_coat_stand: {
+          tag: 'EVIDENCE',
+          title: 'Coat Stand & Wet Umbrella',
+          text: 'Mansur’s heavy coat and wet umbrella remain hanging by the entrance. He never stepped outside after the rain began.'
+        },
+        corridor_notes: {
+          tag: 'TEXT',
+          title: 'Torn Study Notes',
+          text: 'Ripped index cards scattered across the side table show frantic hand-drawn diagrams of cellular mitosis and human anatomy.'
+        },
+        corridor_mirror_key: {
+          tag: 'EVIDENCE',
+          title: 'Wall Mirror & Key Hook',
+          text: 'The front door brass key is still hanging untouched on its iron hook beneath the framed wall mirror.'
+        },
+
+        // --- 3. ARCHIVE (x: 3 to 9, z: -5 to 1) ---
+        archive_safe: {
+          tag: 'SAFE',
+          title: 'Heavy Steel Safe',
+          isSafe: true
+        },
+        biology_textbook: {
+          tag: 'TEXT',
+          title: 'BIOLOGY Hardcover Textbook',
+          isBook: true
+        },
+        archive_ledger: {
+          tag: 'TEXT',
+          title: 'Archive Filing Table & Ledger',
+          text: 'Open on the oak filing table, the official academic ledger lists: "08:30 AM — FINAL BIOLOGY EXAMINATION (MANDATORY)".'
+        },
+        archive_lab_notes: {
+          tag: 'DIARY',
+          title: 'Annotated Lab Notes',
+          text: 'Under the warm brass desk lamp, a margin note in Mansur’s handwriting reads: "This subject is going to be the death of me."'
+        },
+
+        // --- 4. STREET (x: -6 to 8, z: 3 to 10) ---
+        street_watchman: {
+          tag: 'WITNESS',
+          title: 'Night Guard',
+          text: '"I stood right by this porch all night. Nobody entered the house, and I saw the study light go out at 1 AM sharp." (Third digit: 1)'
+        },
+        street_classmate: {
+          tag: 'WITNESS',
+          title: 'Classmate on Bench',
+          text: '"I passed Mansur on the street earlier this evening. He was carrying 1 heavy green hardcover textbook and looked completely exhausted." (Fourth digit: 1)'
+        },
+        street_trash_bin: {
+          tag: 'EVIDENCE',
+          title: 'Street Trash Bin',
+          text: 'Inside the street bin sits a crumpled exam timetable with "BIOLOGY — 10TH GRADE FINAL" circled three times in red ink.'
+        }
+      };
+
+      /**
+       * 2. CUSTOM 3D GEOMETRY, SUTHERLAND-HODGMAN NEAR-PLANE CLIPPING & 5-PASS RENDERER
+       */
+      const NEAR_CLIP_Z = 0.28;
+      const LIGHT_DIR = normalize3({ x: -0.42, y: 0.84, z: 0.34 });
+
+      const pass1Floors = [];
+      const pass2Shadows = [];
+      const pass3WallSections = [];
+      const pass4StaticProps = [];
+      const pass5RoofFaces = [];
+      const interactiveScreenPolys = [];
+
+      function normalize3(v) {
+        const len = Math.hypot(v.x, v.y, v.z) || 1;
+        return { x: v.x / len, y: v.y / len, z: v.z / len };
+      }
+
+      function hexToRgb(hex) {
+        const clean = hex.replace('#', '');
+        const num = parseInt(clean, 16);
+        return {
+          r: (num >> 16) & 255,
+          g: (num >> 8) & 255,
+          b: num & 255
+        };
+      }
+
+      const shadeCache = new Map();
+      function shadeColor(hex, factor, highlight) {
+        const key = hex + '|' + factor.toFixed(2) + '|' + (highlight ? '1' : '0');
+        let cached = shadeCache.get(key);
+        if (cached) return cached;
+        const rgb = hexToRgb(hex);
+        const boost = highlight ? 1.16 : 1.0;
+        const r = Math.max(0, Math.min(255, Math.round(rgb.r * factor * boost)));
+        const g = Math.max(0, Math.min(255, Math.round(rgb.g * factor * boost)));
+        const b = Math.max(0, Math.min(255, Math.round(rgb.b * factor * boost)));
+        cached = 'rgb(' + r + ',' + g + ',' + b + ')';
+        shadeCache.set(key, cached);
+        return cached;
+      }
+
+      function makePolyFace(pts, color, opts = {}) {
+        const ax = pts[1].x - pts[0].x;
+        const ay = pts[1].y - pts[0].y;
+        const az = pts[1].z - pts[0].z;
+        const bx = pts[2].x - pts[0].x;
+        const by = pts[2].y - pts[0].y;
+        const bz = pts[2].z - pts[0].z;
+        const n = normalize3({
+          x: ay * bz - az * by,
+          y: az * bx - ax * bz,
+          z: ax * by - ay * bx
+        });
+
+        let cx = 0, cy = 0, cz = 0;
+        for (let i = 0; i < pts.length; i++) {
+          cx += pts[i].x;
+          cy += pts[i].y;
+          cz += pts[i].z;
+        }
+        cx /= pts.length;
+        cy /= pts.length;
+        cz /= pts.length;
+
+        const ndotl = Math.max(0, n.x * LIGHT_DIR.x + n.y * LIGHT_DIR.y + n.z * LIGHT_DIR.z);
+        const shade = opts.flatShade !== undefined ? opts.flatShade : (0.72 + ndotl * 0.34);
+
+        return {
+          pts,
+          n,
+          center: { x: cx, y: cy, z: cz },
+          color,
+          shade,
+          id: opts.id || null,
+          stroke: opts.stroke !== undefined ? opts.stroke : '#141A24',
+          lineWidth: opts.lineWidth !== undefined ? opts.lineWidth : 1.15
+        };
+      }
+
+      function makeBoxFaces(opts) {
+        const {
+          x = 0, y = 0, z = 0,
+          w = 1, h = 1, d = 1,
+          ry = 0,
+          color = '#FFFFFF',
+          id = null,
+          stroke = '#141A24',
+          lineWidth = 1.15,
+          noBottom = false,
+          noTop = false
+        } = opts;
+
+        const hw = w * 0.5;
+        const hh = h * 0.5;
+        const hd = d * 0.5;
+        const cos = Math.cos(ry);
+        const sin = Math.sin(ry);
+
+        const raw = [
+          [-hw, -hh, -hd], [ hw, -hh, -hd], [ hw,  hh, -hd], [-hw,  hh, -hd],
+          [-hw, -hh,  hd], [ hw, -hh,  hd], [ hw,  hh,  hd], [-hw,  hh,  hd]
+        ];
+
+        const v = raw.map(([lx, ly, lz]) => ({
+          x: x + lx * cos - lz * sin,
+          y: y + ly,
+          z: z + lx * sin + lz * cos
+        }));
+
+        const quads = [
+          [v[4], v[5], v[6], v[7]], // +Z Front
+          [v[1], v[0], v[3], v[2]], // -Z Back
+          [v[5], v[1], v[2], v[6]], // +X Right
+          [v[0], v[4], v[7], v[3]]  // -X Left
+        ];
+        if (!noTop) quads.push([v[7], v[6], v[2], v[3]]);
+        if (!noBottom) quads.push([v[0], v[1], v[5], v[4]]);
+
+        return quads.map(q => makePolyFace(q, color, { id, stroke, lineWidth }));
+      }
+
+      function createProp(cx, cy, cz, id = null) {
+        const prop = {
+          id,
+          center: { x: cx, y: cy, z: cz },
+          faces: [],
+          addBox(boxOpts) {
+            const faces = makeBoxFaces(Object.assign({ id: this.id }, boxOpts));
+            for (let i = 0; i < faces.length; i++) {
+              this.faces.push(faces[i]);
+            }
+            return this;
+          },
+          addPoly(pts, color, polyOpts = {}) {
+            this.faces.push(makePolyFace(pts, color, Object.assign({ id: this.id }, polyOpts)));
+            return this;
+          }
+        };
+        return prop;
+      }
+
+      /**
+       * Subdivides floor planes into crisp ~1.0m tiles so perspective foreshortening never distorts.
+       */
+      function addTiledFloor(opts) {
+        const {
+          xMin, xMax, zMin, zMax,
+          y = 0,
+          tileW = 1.0,
+          tileD = 1.0,
+          colors = ['#D6C4AA'],
+          stroke = '#8C7A64',
+          lineWidth = 0.85
+        } = opts;
+
+        const nx = Math.max(1, Math.round((xMax - xMin) / tileW));
+        const nz = Math.max(1, Math.round((zMax - zMin) / tileD));
+        const dx = (xMax - xMin) / nx;
+        const dz = (zMax - zMin) / nz;
+
+        for (let ix = 0; ix < nx; ix++) {
+          for (let iz = 0; iz < nz; iz++) {
+            const x0 = xMin + ix * dx;
+            const x1 = x0 + dx;
+            const z0 = zMin + iz * dz;
+            const z1 = z0 + dz;
+            const c = colors[(ix + iz * 2) % colors.length];
+            pass1Floors.push(makePolyFace(
+              [
+                { x: x0, y, z: z1 },
+                { x: x1, y, z: z1 },
+                { x: x1, y, z: z0 },
+                { x: x0, y, z: z0 }
+              ],
+              c,
+              { stroke, lineWidth, flatShade: 0.96 }
+            ));
+          }
+        }
+      }
+
+      /**
+       * Creates a dynamic architectural wall section subdivided into ~1.1m panels.
+       * When the camera looks through this wall toward the detective, it smoothly fades/cuts away.
+       */
+      function addCutawayWall(opts) {
+        const {
+          x, z, w, d,
+          y0 = 0,
+          y1 = 2.45,
+          color = '#EFECE4',
+          cutAxis = null, // 'z' or 'x'
+          cutSide = 1     // +1 or -1
+        } = opts;
+
+        const h = y1 - y0;
+        const cy = (y0 + y1) * 0.5;
+        const segsX = Math.max(1, Math.round(w / 1.15));
+        const segsZ = Math.max(1, Math.round(d / 1.15));
+        const sw = w / segsX;
+        const sd = d / segsZ;
+
+        const faces = [];
+        for (let ix = 0; ix < segsX; ix++) {
+          for (let iz = 0; iz < segsZ; iz++) {
+            const cx = x - w * 0.5 + sw * (ix + 0.5);
+            const cz = z - d * 0.5 + sd * (iz + 0.5);
+            const box = makeBoxFaces({
+              x: cx, y: cy, z: cz,
+              w: sw, h, d: sd,
+              color,
+              stroke: '#141A24',
+              lineWidth: 1.1,
+              noBottom: true
+            });
+            for (let b = 0; b < box.length; b++) faces.push(box[b]);
+          }
+        }
+
+        pass3WallSections.push({
+          center: { x, y: cy, z },
+          cutAxis,
+          cutSide,
+          alpha: 1.0,
+          faces
+        });
+      }
+
+      function addContactShadow(cx, cz, w, d, ry = 0) {
+        const hw = w * 0.5;
+        const hd = d * 0.5;
+        const cos = Math.cos(ry);
+        const sin = Math.sin(ry);
+        const raw = [[-hw, hd], [hw, hd], [hw, -hd], [-hw, -hd]];
+        const pts = raw.map(([lx, lz]) => ({
+          x: cx + lx * cos - lz * sin,
+          y: 0.004,
+          z: cz + lx * sin + lz * cos
+        }));
+        pass2Shadows.push(makePolyFace(pts, '#141A24', { stroke: null, lineWidth: 0, flatShade: 1.0 }));
+      }
+
+      /**
+       * 3. BUILD COMPLETE 4-LOCATION 3D WORLD
+       */
+      function buildWorld() {
+        pass1Floors.length = 0;
+        pass2Shadows.length = 0;
+        pass3WallSections.length = 0;
+        pass4StaticProps.length = 0;
+        pass5RoofFaces.length = 0;
+
+        // ============================================================
+        // PASS 1: TILED FLOORS ACROSS ALL 4 LOCATIONS
+        // ============================================================
+        // 1. Study (Oak Parquet: x -7 to -1, z -5 to 1)
+        addTiledFloor({
+          xMin: -7, xMax: -1, zMin: -5, zMax: 1,
+          tileW: 1.0, tileD: 1.0,
+          colors: ['#D6C4AA', '#CEBB9F'],
+          stroke: '#9E8B70'
+        });
+
+        // Crimson woven Study rug (subdivided into 6 tiles)
+        addTiledFloor({
+          xMin: -5.3, xMax: -2.5, zMin: -2.7, zMax: -0.9,
+          y: 0.006, tileW: 0.93, tileD: 0.9,
+          colors: ['#7F1D1D', '#8B2222'],
+          stroke: '#141A24', lineWidth: 1.0
+        });
+
+        // 2. Corridor (Warm Herringbone/Plank: x -1 to 3, z -5 to 3)
+        addTiledFloor({
+          xMin: -1, xMax: 3, zMin: -5, zMax: 3,
+          tileW: 1.0, tileD: 1.0,
+          colors: ['#DECDB5', '#D4C2A8'],
+          stroke: '#9E8B70'
+        });
+
+        // 3. Archive (Slate Stone Tiles: x 3 to 9, z -5 to 1)
+        addTiledFloor({
+          xMin: 3, xMax: 9, zMin: -5, zMax: 1,
+          tileW: 1.0, tileD: 1.0,
+          colors: ['#C9C5BC', '#BFBBB2'],
+          stroke: '#7E7A72'
+        });
+
+        // 4A. Street Sidewalk (x -7 to 9, z 3 to 7.2)
+        addTiledFloor({
+          xMin: -7, xMax: 9, zMin: 3, zMax: 7.2,
+          y: -0.01, tileW: 1.0, tileD: 1.05,
+          colors: ['#DDD9D0', '#D5D1C8'],
+          stroke: '#9CA3AF'
+        });
+
+        // 4B. Street Cobblestone Roadway (x -7 to 9, z 7.2 to 10.6)
+        addTiledFloor({
+          xMin: -7, xMax: 9, zMin: 7.2, zMax: 10.6,
+          y: -0.03, tileW: 1.0, tileD: 0.85,
+          colors: ['#B8B4AC', '#AEAAA2'],
+          stroke: '#6B7280'
+        });
+
+        // ============================================================
+        // PASS 3: DYNAMIC ARCHITECTURAL CUTAWAY WALLS
+        // ============================================================
+        const WH = 2.45;
+
+        // North Exterior Back Wall (z = -5)
+        addCutawayWall({ x: 1.0, z: -5.0, w: 16.12, d: 0.14, y0: 0, y1: WH, cutAxis: 'z', cutSide: -1 });
+
+        // West Exterior Wall of Study (x = -7)
+        addCutawayWall({ x: -7.0, z: -2.0, w: 0.14, d: 6.12, y0: 0, y1: WH, cutAxis: 'x', cutSide: -1 });
+
+        // East Exterior Wall of Archive (x = 9)
+        addCutawayWall({ x: 9.0, z: -2.0, w: 0.14, d: 6.12, y0: 0, y1: WH, cutAxis: 'x', cutSide: 1 });
+
+        // South Front Wall of Study (z = 1, x: -7 to -1)
+        addCutawayWall({ x: -4.0, z: 1.0, w: 6.08, d: 0.14, y0: 0, y1: WH, cutAxis: 'z', cutSide: 1 });
+
+        // South Front Wall of Archive (z = 1, x: 3 to 9)
+        addCutawayWall({ x: 6.0, z: 1.0, w: 6.08, d: 0.14, y0: 0, y1: WH, cutAxis: 'z', cutSide: 1 });
+
+        // Corridor Side Extensions (z: 1 to 3)
+        addCutawayWall({ x: -1.0, z: 2.0, w: 0.14, d: 2.08, y0: 0, y1: WH, cutAxis: 'x', cutSide: -1 });
+        addCutawayWall({ x:  3.0, z: 2.0, w: 0.14, d: 2.08, y0: 0, y1: WH, cutAxis: 'x', cutSide: 1 });
+
+        // Partition: Study <-> Corridor (x = -1, doorway at z: -2.6 to -1.2)
+        addCutawayWall({ x: -1.0, z: -3.8, w: 0.14, d: 2.4, y0: 0, y1: WH, cutAxis: 'x', cutSide: 0 });
+        addCutawayWall({ x: -1.0, z: -0.1, w: 0.14, d: 2.2, y0: 0, y1: WH, cutAxis: 'x', cutSide: 0 });
+        addCutawayWall({ x: -1.0, z: -1.9, w: 0.14, d: 1.4, y0: 2.15, y1: WH, cutAxis: 'x', cutSide: 0 });
+
+        // Partition: Corridor <-> Archive (x = 3, doorway at z: -2.6 to -1.2)
+        addCutawayWall({ x: 3.0, z: -3.8, w: 0.14, d: 2.4, y0: 0, y1: WH, cutAxis: 'x', cutSide: 0 });
+        addCutawayWall({ x: 3.0, z: -0.1, w: 0.14, d: 2.2, y0: 0, y1: WH, cutAxis: 'x', cutSide: 0 });
+        addCutawayWall({ x: 3.0, z: -1.9, w: 0.14, d: 1.4, y0: 2.15, y1: WH, cutAxis: 'x', cutSide: 0 });
+
+        // Front Exterior Wall with Front Doorway to Street (z = 3, doorway x: 0.3 to 1.7)
+        addCutawayWall({ x: -0.35, z: 3.0, w: 1.3, d: 0.14, y0: 0, y1: WH, cutAxis: 'z', cutSide: 1 });
+        addCutawayWall({ x:  2.35, z: 3.0, w: 1.3, d: 0.14, y0: 0, y1: WH, cutAxis: 'z', cutSide: 1 });
+        addCutawayWall({ x:  1.00, z: 3.0, w: 1.4, d: 0.14, y0: 2.15, y1: WH, cutAxis: 'z', cutSide: 1 });
+
+        // ============================================================
+        // PASS 5: PITCHED HOUSE ROOF & BRICK CHIMNEY
+        // ============================================================
+        buildPitchedRoof();
+
+        // ============================================================
+        // PASS 2 & PASS 4: 15 INTERACTIVE CLUES, FURNITURE & WITNESSES
+        // ============================================================
+
+        // Doorway Thresholds & Street Curb
+        pass4StaticProps.push(
+          createProp(-1.0, 0.01, -1.9, null).addBox({ x: -1.0, y: 0.01, z: -1.9, w: 0.16, h: 0.02, d: 1.4, color: '#B59454' }),
+          createProp( 3.0, 0.01, -1.9, null).addBox({ x:  3.0, y: 0.01, z: -1.9, w: 0.16, h: 0.02, d: 1.4, color: '#B59454' }),
+          createProp( 1.0, 0.01,  3.0, null).addBox({ x:  1.0, y: 0.01, z:  3.0, w: 1.4, h: 0.02, d: 0.16, color: '#B59454' }),
+          createProp( 1.0, -0.02, 7.25, null).addBox({ x: 1.0, y: -0.02, z: 7.25, w: 16.4, h: 0.14, d: 0.22, color: '#1E3A5F' })
+        );
+
+        // --- LOCATION 1: STUDY (5 CLUES) ---
+
+        // [1] Wall Clock on North Wall (stopped at 9 -> Digit 1: 9)
+        pass4StaticProps.push(
+          createProp(-4.2, 1.85, -4.92, 'study_clock')
+            .addBox({ x: -4.2, y: 1.85, z: -4.93, w: 0.68, h: 0.68, d: 0.08, color: '#B59454' })
+            .addBox({ x: -4.2, y: 1.85, z: -4.88, w: 0.54, h: 0.54, d: 0.03, color: '#FFFFFF' })
+            .addBox({ x: -4.30, y: 1.85, z: -4.85, w: 0.18, h: 0.035, d: 0.02, color: '#B91C1C' })
+            .addBox({ x: -4.20, y: 1.95, z: -4.85, w: 0.03, h: 0.20, d: 0.02, color: '#141A24' })
+        );
+
+        // [2] Oak Desk with Mansur's Diary & Lamp
+        addContactShadow(-4.2, -3.5, 2.2, 1.1);
+        pass4StaticProps.push(
+          createProp(-4.2, 0.5, -3.5, 'study_diary')
+            .addBox({ x: -5.12, y: 0.36, z: -3.9, w: 0.09, h: 0.72, d: 0.09, color: '#141A24' })
+            .addBox({ x: -3.28, y: 0.36, z: -3.9, w: 0.09, h: 0.72, d: 0.09, color: '#141A24' })
+            .addBox({ x: -5.12, y: 0.36, z: -3.1, w: 0.09, h: 0.72, d: 0.09, color: '#141A24' })
+            .addBox({ x: -3.28, y: 0.36, z: -3.1, w: 0.09, h: 0.72, d: 0.09, color: '#141A24' })
+            .addBox({ x: -3.55, y: 0.48, z: -3.5, w: 0.48, h: 0.44, d: 0.86, color: '#4A3020' })
+            .addBox({ x: -4.2, y: 0.76, z: -3.5, w: 2.05, h: 0.09, d: 0.98, color: '#5C3D28' })
+            .addBox({ x: -4.15, y: 0.825, z: -3.35, w: 0.38, h: 0.035, d: 0.28, ry: 0.14, color: '#1E3A5F' })
+            .addBox({ x: -4.15, y: 0.85, z: -3.35, w: 0.32, h: 0.015, d: 0.22, ry: 0.14, color: '#FFFFFF' })
+            .addBox({ x: -4.88, y: 0.83, z: -3.72, w: 0.22, h: 0.04, d: 0.22, color: '#B59454' })
+            .addBox({ x: -4.88, y: 1.04, z: -3.72, w: 0.04, h: 0.38, d: 0.04, color: '#141A24' })
+            .addBox({ x: -4.84, y: 1.24, z: -3.70, w: 0.28, h: 0.14, d: 0.22, color: '#FDE047' })
+        );
+
+        // [3] Bloodstain on the Study Rug
+        pass4StaticProps.push(
+          createProp(-3.8, 0.02, -1.85, 'study_rug_blood')
+            .addBox({ x: -3.8, y: 0.015, z: -1.85, w: 0.46, h: 0.012, d: 0.38, ry: 0.35, color: '#B91C1C' })
+            .addBox({ x: -3.52, y: 0.015, z: -1.68, w: 0.18, h: 0.012, d: 0.16, color: '#7F1D1D' })
+        );
+
+        // [4] Bookshelf with Missing Volume Gap
+        addContactShadow(-6.68, -2.2, 0.55, 2.2);
+        const shelfProp = createProp(-6.7, 1.1, -2.2, 'study_bookshelf')
+          .addBox({ x: -6.7, y: 1.1, z: -2.2, w: 0.42, h: 2.2, d: 2.1, color: '#5C3D28' });
+        const bookPalette = ['#1E3A5F', '#B91C1C', '#B59454', '#374151'];
+        for (let bz = -3.05; bz <= -1.35; bz += 0.22) {
+          if (Math.abs(bz - (-2.17)) < 0.09) continue;
+          const c = bookPalette[Math.abs(Math.round(bz * 10)) % bookPalette.length];
+          shelfProp
+            .addBox({ x: -6.58, y: 0.85, z: bz, w: 0.26, h: 0.34, d: 0.14, color: c })
+            .addBox({ x: -6.58, y: 1.55, z: bz, w: 0.26, h: 0.34, d: 0.14, color: c });
+        }
+        pass4StaticProps.push(shelfProp);
+
+        // [5] Shattered Porcelain Mug near the Desk
+        pass4StaticProps.push(
+          createProp(-2.9, 0.05, -2.95, 'study_mug')
+            .addBox({ x: -2.9, y: 0.012, z: -2.95, w: 0.34, h: 0.01, d: 0.30, color: '#3E2723' })
+            .addBox({ x: -2.86, y: 0.06, z: -2.92, w: 0.13, h: 0.11, d: 0.12, ry: 0.4, color: '#FFFFFF' })
+            .addBox({ x: -3.02, y: 0.025, z: -3.04, w: 0.09, h: 0.03, d: 0.07, ry: -0.5, color: '#FFFFFF' })
+        );
+
+        // --- LOCATION 2: CORRIDOR (4 CLUES) ---
+
+        // [6] Trail of 6 Blood Drops on Floorboards & Scratched "6" on Wall (Second digit: 6)
+        const trailProp = createProp(0.9, 0.02, -1.85, 'corridor_blood_trail');
+        const dropCoords = [
+          [-0.35, -1.95], [0.15, -1.80], [0.65, -1.92],
+          [ 1.15, -1.78], [1.65, -1.90], [2.15, -1.82]
+        ];
+        dropCoords.forEach(([dx, dz]) => {
+          trailProp.addBox({ x: dx, y: 0.012, z: dz, w: 0.20, h: 0.014, d: 0.17, color: '#B91C1C' });
+        });
+        trailProp.addBox({ x: 2.91, y: 1.38, z: -0.78, w: 0.03, h: 0.34, d: 0.28, color: '#B91C1C' });
+        pass4StaticProps.push(trailProp);
+
+        // [7] Coat Stand with Wet Umbrella
+        addContactShadow(-0.45, 2.25, 0.62, 0.62);
+        pass4StaticProps.push(
+          createProp(-0.45, 0.95, 2.25, 'corridor_coat_stand')
+            .addBox({ x: -0.45, y: 0.03, z: 2.25, w: 0.46, h: 0.06, d: 0.46, color: '#141A24' })
+            .addBox({ x: -0.45, y: 0.95, z: 2.25, w: 0.07, h: 1.85, d: 0.07, color: '#5C3D28' })
+            .addBox({ x: -0.45, y: 1.72, z: 2.25, w: 0.44, h: 0.05, d: 0.05, color: '#B59454' })
+            .addBox({ x: -0.32, y: 1.25, z: 2.20, w: 0.24, h: 0.56, d: 0.20, color: '#1E3A5F' })
+            .addBox({ x: -0.58, y: 0.55, z: 2.15, w: 0.08, h: 0.85, d: 0.08, ry: 0.15, color: '#14532D' })
+        );
+
+        // [8] Side Table with Torn Study Notes
+        addContactShadow(1.0, -4.35, 1.35, 0.68);
+        pass4StaticProps.push(
+          createProp(1.0, 0.45, -4.35, 'corridor_notes')
+            .addBox({ x: 0.42, y: 0.36, z: -4.6, w: 0.07, h: 0.72, d: 0.07, color: '#141A24' })
+            .addBox({ x: 1.58, y: 0.36, z: -4.6, w: 0.07, h: 0.72, d: 0.07, color: '#141A24' })
+            .addBox({ x: 0.42, y: 0.36, z: -4.1, w: 0.07, h: 0.72, d: 0.07, color: '#141A24' })
+            .addBox({ x: 1.58, y: 0.36, z: -4.1, w: 0.07, h: 0.72, d: 0.07, color: '#141A24' })
+            .addBox({ x: 1.0, y: 0.75, z: -4.35, w: 1.30, h: 0.07, d: 0.62, color: '#5C3D28' })
+            .addBox({ x: 0.82, y: 0.80, z: -4.35, w: 0.28, h: 0.015, d: 0.22, ry: 0.25, color: '#FFFFFF' })
+            .addBox({ x: 1.18, y: 0.80, z: -4.30, w: 0.26, h: 0.015, d: 0.20, ry: -0.32, color: '#FEF08A' })
+        );
+
+        // [9] Framed Wall Mirror & Key Hook on East Corridor Wall
+        pass4StaticProps.push(
+          createProp(2.90, 1.65, 0.3, 'corridor_mirror_key')
+            .addBox({ x: 2.91, y: 1.72, z: 0.2, w: 0.06, h: 0.92, d: 0.68, color: '#B59454' })
+            .addBox({ x: 2.88, y: 1.72, z: 0.2, w: 0.03, h: 0.76, d: 0.52, color: '#CBD5E1' })
+            .addBox({ x: 2.90, y: 1.45, z: 0.85, w: 0.05, h: 0.16, d: 0.22, color: '#4A3020' })
+            .addBox({ x: 2.87, y: 1.38, z: 0.85, w: 0.03, h: 0.12, d: 0.06, color: '#D4AF37' })
+        );
+
+        // --- LOCATION 3: ARCHIVE (3 CLUES: SAFE + LEDGER + LAMP/NOTES) ---
+        addContactShadow(8.35, -2.0, 0.95, 1.15);
+
+        // [11] Archive Filing Table & Ledger
+        addContactShadow(5.6, -4.15, 1.95, 1.05);
+        pass4StaticProps.push(
+          createProp(5.6, 0.45, -4.15, 'archive_ledger')
+            .addBox({ x: 4.78, y: 0.36, z: -4.55, w: 0.08, h: 0.72, d: 0.08, color: '#141A24' })
+            .addBox({ x: 6.42, y: 0.36, z: -4.55, w: 0.08, h: 0.72, d: 0.08, color: '#141A24' })
+            .addBox({ x: 4.78, y: 0.36, z: -3.75, w: 0.08, h: 0.72, d: 0.08, color: '#141A24' })
+            .addBox({ x: 6.42, y: 0.36, z: -3.75, w: 0.08, h: 0.72, d: 0.08, color: '#141A24' })
+            .addBox({ x: 5.6, y: 0.75, z: -4.15, w: 1.85, h: 0.08, d: 0.95, color: '#5C3D28' })
+            .addBox({ x: 5.45, y: 0.81, z: -4.12, w: 0.48, h: 0.035, d: 0.34, color: '#B91C1C' })
+            .addBox({ x: 5.45, y: 0.835, z: -4.12, w: 0.42, h: 0.015, d: 0.28, color: '#FFFFFF' })
+        );
+
+        // [12] Brass Desk Lamp & Annotated Lab Notes
+        addContactShadow(5.4, 0.15, 1.65, 0.92);
+        pass4StaticProps.push(
+          createProp(5.4, 0.45, 0.15, 'archive_lab_notes')
+            .addBox({ x: 4.72, y: 0.36, z: -0.22, w: 0.08, h: 0.72, d: 0.08, color: '#141A24' })
+            .addBox({ x: 6.08, y: 0.36, z: -0.22, w: 0.08, h: 0.72, d: 0.08, color: '#141A24' })
+            .addBox({ x: 4.72, y: 0.36, z:  0.52, w: 0.08, h: 0.72, d: 0.08, color: '#141A24' })
+            .addBox({ x: 6.08, y: 0.36, z:  0.52, w: 0.08, h: 0.72, d: 0.08, color: '#141A24' })
+            .addBox({ x: 5.4, y: 0.75, z: 0.15, w: 1.55, h: 0.08, d: 0.85, color: '#5C3D28' })
+            .addBox({ x: 5.2, y: 0.80, z: 0.15, w: 0.42, h: 0.015, d: 0.30, ry: -0.15, color: '#FFFFFF' })
+            .addBox({ x: 5.82, y: 0.82, z: 0.22, w: 0.22, h: 0.04, d: 0.22, color: '#D4AF37' })
+            .addBox({ x: 5.82, y: 1.02, z: 0.22, w: 0.04, h: 0.36, d: 0.04, color: '#D4AF37' })
+            .addBox({ x: 5.78, y: 1.22, z: 0.20, w: 0.26, h: 0.14, d: 0.20, color: '#14532D' })
+        );
+
+        // --- LOCATION 4: STREET (3 INTERACTIVE WITNESSES & CLUES) ---
+
+        // Streetlamp
+        addContactShadow(-1.6, 5.2, 0.56, 0.56);
+        pass4StaticProps.push(
+          createProp(-1.6, 1.3, 5.2, null)
+            .addBox({ x: -1.6, y: 0.06, z: 5.2, w: 0.34, h: 0.12, d: 0.34, color: '#141A24' })
+            .addBox({ x: -1.6, y: 1.40, z: 5.2, w: 0.10, h: 2.65, d: 0.10, color: '#141A24' })
+            .addBox({ x: -1.6, y: 2.85, z: 5.2, w: 0.38, h: 0.38, d: 0.38, color: '#FDE047' })
+        );
+
+        // Street Trees
+        [[-5.2, 4.6], [6.6, 4.8]].forEach(([tx, tz]) => {
+          addContactShadow(tx, tz, 1.1, 1.1);
+          pass4StaticProps.push(
+            createProp(tx, 1.4, tz, null)
+              .addBox({ x: tx, y: 0.75, z: tz, w: 0.26, h: 1.50, d: 0.26, color: '#4A3020' })
+              .addBox({ x: tx, y: 1.85, z: tz, w: 1.25, h: 0.95, d: 1.25, color: '#14532D' })
+              .addBox({ x: tx, y: 2.55, z: tz, w: 0.85, h: 0.75, d: 0.85, color: '#166534' })
+          );
+        });
+
+        // [13] Witness 1: Night Guard standing near the porch (Third digit: 1)
+        addContactShadow(-0.65, 4.4, 0.56, 0.56);
+        pass4StaticProps.push(
+          buildHumanProp({
+            x: -0.65, y: 0, z: 4.4, ry: 2.75,
+            coatColor: '#1E3A5F', hatColor: '#141A24',
+            seated: false, hasFlashlight: true, id: 'street_watchman'
+          })
+        );
+
+        // [14] Witness 2: Classmate sitting on the street bench (Fourth digit: 1)
+        addContactShadow(3.6, 5.4, 1.9, 0.72, 0.22);
+        pass4StaticProps.push(
+          createProp(3.6, 0.45, 5.4, 'street_classmate')
+            .addBox({ x: 2.88, y: 0.22, z: 5.24, w: 0.08, h: 0.44, d: 0.48, ry: 0.22, color: '#141A24' })
+            .addBox({ x: 4.32, y: 0.22, z: 5.56, w: 0.08, h: 0.44, d: 0.48, ry: 0.22, color: '#141A24' })
+            .addBox({ x: 3.60, y: 0.44, z: 5.40, w: 1.75, h: 0.07, d: 0.54, ry: 0.22, color: '#5C3D28' })
+            .addBox({ x: 3.52, y: 0.72, z: 5.64, w: 1.75, h: 0.46, d: 0.07, ry: 0.22, color: '#5C3D28' }),
+          buildHumanProp({
+            x: 3.45, y: 0, z: 5.26, ry: 2.92,
+            coatColor: '#B91C1C', hatColor: null,
+            seated: true, hasFlashlight: false, id: 'street_classmate'
+          })
+        );
+
+        // [15] Street Trash Bin with crumpled Biology exam timetable
+        addContactShadow(2.25, 3.85, 0.48, 0.48);
+        pass4StaticProps.push(
+          createProp(2.25, 0.32, 3.85, 'street_trash_bin')
+            .addBox({ x: 2.25, y: 0.28, z: 3.85, w: 0.38, h: 0.56, d: 0.38, color: '#374151' })
+            .addBox({ x: 2.25, y: 0.58, z: 3.85, w: 0.26, h: 0.08, d: 0.26, ry: 0.3, color: '#FFFFFF' })
+        );
+      }
+
+      /**
+       * Pitched House Roof & Brick Chimney (lifts up smoothly when detective is inside; closes over house when outside)
+       */
+      function buildPitchedRoof() {
+        const eaveY = 2.45;
+        const ridgeY = 3.95;
+        const xMin = -7.22;
+        const xMax = 9.22;
+        const zBack = -5.22;
+        const zFront = 1.22;
+        const zRidge = -2.0;
+
+        const cols = 8;
+        const dx = (xMax - xMin) / cols;
+        for (let c = 0; c < cols; c++) {
+          const x0 = xMin + c * dx;
+          const x1 = x0 + dx;
+          const tileShade = c % 2 === 0 ? '#7F2D27' : '#6B241F';
+
+          pass5RoofFaces.push(
+            makePolyFace(
+              [
+                { x: x0, y: eaveY, z: zFront },
+                { x: x1, y: eaveY, z: zFront },
+                { x: x1, y: ridgeY, z: zRidge },
+                { x: x0, y: ridgeY, z: zRidge }
+              ],
+              tileShade,
+              { stroke: '#141A24', lineWidth: 1.2 }
+            ),
+            makePolyFace(
+              [
+                { x: x1, y: eaveY, z: zBack },
+                { x: x0, y: eaveY, z: zBack },
+                { x: x0, y: ridgeY, z: zRidge },
+                { x: x1, y: ridgeY, z: zRidge }
+              ],
+              tileShade,
+              { stroke: '#141A24', lineWidth: 1.2 }
+            )
+          );
+        }
+
+        // West & East Gable End Triangles
+        pass5RoofFaces.push(
+          makePolyFace(
+            [
+              { x: -7.06, y: eaveY, z: -5.06 },
+              { x: -7.06, y: eaveY, z: 1.06 },
+              { x: -7.06, y: ridgeY, z: zRidge }
+            ],
+            '#E5E0D5',
+            { stroke: '#141A24', lineWidth: 1.2 }
+          ),
+          makePolyFace(
+            [
+              { x: 9.06, y: eaveY, z: 1.06 },
+              { x: 9.06, y: eaveY, z: -5.06 },
+              { x: 9.06, y: ridgeY, z: zRidge }
+            ],
+            '#E5E0D5',
+            { stroke: '#141A24', lineWidth: 1.2 }
+          )
+        );
+
+        // Front Entrance Wing Gable Roof over Corridor (x: -1.14..3.14, z: 1.0..3.22)
+        const pXMin = -1.14;
+        const pXMax = 3.14;
+        const pXMid = 1.0;
+        const pRidgeY = 3.55;
+        const pZBack = 0.85;
+        const pZFront = 3.22;
+
+        pass5RoofFaces.push(
+          makePolyFace(
+            [
+              { x: pXMin, y: eaveY, z: pZFront },
+              { x: pXMid, y: pRidgeY, z: pZFront },
+              { x: pXMid, y: pRidgeY, z: pZBack },
+              { x: pXMin, y: eaveY, z: pZBack }
+            ],
+            '#7F2D27',
+            { stroke: '#141A24', lineWidth: 1.2 }
+          ),
+          makePolyFace(
+            [
+              { x: pXMid, y: pRidgeY, z: pZFront },
+              { x: pXMax, y: eaveY, z: pZFront },
+              { x: pXMax, y: eaveY, z: pZBack },
+              { x: pXMid, y: pRidgeY, z: pZBack }
+            ],
+            '#6B241F',
+            { stroke: '#141A24', lineWidth: 1.2 }
+          ),
+          makePolyFace(
+            [
+              { x: -1.06, y: eaveY, z: 3.06 },
+              { x:  3.06, y: eaveY, z: 3.06 },
+              { x:  pXMid, y: pRidgeY, z: 3.06 }
+            ],
+            '#EFECE4',
+            { stroke: '#141A24', lineWidth: 1.2 }
+          )
+        );
+
+        // Ridge Cap & Brick Chimney
+        [
+          { x: 1.0, y: ridgeY + 0.05, z: zRidge, w: xMax - xMin + 0.08, h: 0.11, d: 0.22, color: '#141A24' },
+          { x: pXMid, y: pRidgeY + 0.04, z: (pZFront + pZBack) * 0.5, w: 0.20, h: 0.09, d: pZFront - pZBack + 0.08, color: '#141A24' },
+          { x: -4.4, y: 3.85, z: -2.6, w: 0.68, h: 1.35, d: 0.68, color: '#B91C1C' },
+          { x: -4.4, y: 4.56, z: -2.6, w: 0.82, h: 0.11, d: 0.82, color: '#141A24' }
+        ].forEach(b => {
+          makeBoxFaces(b).forEach(f => pass5RoofFaces.push(f));
+        });
+      }
+
+      /**
+       * Builds a 3D human figure (Watchman, Classmate, or Detective)
+       */
+      function buildHumanProp(opts) {
+        const {
+          x, y, z, ry = 0,
+          coatColor = '#1E3A5F',
+          hatColor = null,
+          seated = false,
+          hasFlashlight = false,
+          walkPhase = 0,
+          id = null
+        } = opts;
+
+        const prop = createProp(x, y + 0.72, z, id);
+        const cos = Math.cos(ry);
+        const sin = Math.sin(ry);
+
+        function part(lx, ly, lz, w, h, d, color) {
+          prop.addBox({
+            x: x + lx * cos - lz * sin,
+            y: y + ly,
+            z: z + lx * sin + lz * cos,
+            w, h, d, ry, color
+          });
+        }
+
+        if (seated) {
+          part(-0.10, 0.22, 0.14, 0.11, 0.36, 0.12, '#141A24');
+          part( 0.10, 0.22, 0.14, 0.11, 0.36, 0.12, '#141A24');
+          part(0, 0.68, 0, 0.36, 0.56, 0.24, coatColor);
+          part(-0.23, 0.68, 0.04, 0.09, 0.44, 0.10, coatColor);
+          part( 0.23, 0.68, 0.04, 0.09, 0.44, 0.10, coatColor);
+          part(0, 1.09, 0, 0.22, 0.22, 0.22, '#E5C29F');
+        } else {
+          const swing = Math.sin(walkPhase) * 0.11;
+          part(-0.10, 0.28,  swing, 0.11, 0.52, 0.13, '#141A24');
+          part( 0.10, 0.28, -swing, 0.11, 0.52, 0.13, '#141A24');
+          part(0, 0.84, 0, 0.36, 0.60, 0.24, coatColor);
+          part(-0.23, 0.84, -swing * 0.8, 0.09, 0.50, 0.10, coatColor);
+          part( 0.23, 0.84,  swing * 0.8, 0.09, 0.50, 0.10, coatColor);
+          part(0, 1.27, 0, 0.22, 0.22, 0.22, '#E5C29F');
+          if (hatColor) {
+            part(0, 1.40, 0, 0.32, 0.04, 0.32, hatColor);
+            part(0, 1.47, 0, 0.20, 0.10, 0.20, hatColor);
+          }
+        }
+
+        if (hasFlashlight) {
+          part(0.24, 0.70, 0.16, 0.07, 0.07, 0.24, '#D4AF37');
+          part(0.24, 0.70, 0.29, 0.08, 0.08, 0.03, '#FEF08A');
+        }
+
+        return prop;
+      }
+
+      /**
+       * Builds dynamic 3D objects each frame: Detective + Archive Safe + BIOLOGY Hardcover Book
+       */
+      function buildDynamicProps(dynamicShadows, dynamicProps) {
+        // 1. Detective Character
+        dynamicProps.push(
+          buildHumanProp({
+            x: player.x,
+            y: 0,
+            z: player.z,
+            ry: player.ry,
+            coatColor: '#1E3A5F',
+            hatColor: '#141A24',
+            seated: false,
+            walkPhase: player.walkPhase,
+            id: null
+          })
+        );
+
+        const hw = 0.26;
+        const hd = 0.26;
+        const cos = Math.cos(player.ry);
+        const sin = Math.sin(player.ry);
+        const sPts = [[-hw, hd], [hw, hd], [hw, -hd], [-hw, -hd]].map(([lx, lz]) => ({
+          x: player.x + lx * cos - lz * sin,
+          y: 0.004,
+          z: player.z + lx * sin + lz * cos
+        }));
+        dynamicShadows.push(makePolyFace(sPts, '#141A24', { stroke: null, lineWidth: 0, flatShade: 1.0 }));
+
+        // 2. Heavy Steel Safe in Archive (x = 8.35, z = -2.0)
+        const safeProp = createProp(8.35, 0.8, -2.0, 'archive_safe');
+        safeProp
+          .addBox({ x: 8.35, y: 0.24, z: -2.0, w: 0.78, h: 0.48, d: 0.98, color: '#5C3D28' })
+          .addBox({ x: 8.70, y: 0.98, z: -2.0, w: 0.08, h: 1.00, d: 0.94, color: '#374151' })
+          .addBox({ x: 8.35, y: 0.52, z: -2.0, w: 0.76, h: 0.08, d: 0.94, color: '#374151' })
+          .addBox({ x: 8.35, y: 0.98, z: -2.43, w: 0.76, h: 1.00, d: 0.08, color: '#374151' })
+          .addBox({ x: 8.35, y: 0.98, z: -1.57, w: 0.76, h: 1.00, d: 0.08, color: '#374151' })
+          .addBox({ x: 8.35, y: 1.44, z: -2.0, w: 0.76, h: 0.08, d: 0.94, color: '#374151' });
+
+        // Thick 3D Green-and-Gold Hardcover "BIOLOGY" Textbook inside the Safe
+        const bookId = state.safeOpen ? 'biology_textbook' : 'archive_safe';
+        safeProp
+          .addBox({ x: 8.32, y: 0.80, z: -2.0, w: 0.36, h: 0.48, d: 0.13, ry: -0.18, color: '#14532D', id: bookId })
+          .addBox({ x: 8.25, y: 0.80, z: -2.0, w: 0.03, h: 0.42, d: 0.14, ry: -0.18, color: '#D4AF37', id: bookId })
+          .addBox({ x: 8.26, y: 0.90, z: -2.0, w: 0.26, h: 0.14, d: 0.14, ry: -0.18, color: '#D4AF37', id: bookId });
+
+        // Hinged 3D Steel Safe Door
+        const hingeX = 7.98;
+        const hingeZ = -2.40;
+        const doorW = 0.80;
+        const angle = state.safeDoorAngle;
+        const doorCenterX = hingeX + Math.sin(angle) * (doorW * 0.5);
+        const doorCenterZ = hingeZ + Math.cos(angle) * (doorW * 0.5);
+
+        safeProp.addBox({
+          x: doorCenterX,
+          y: 0.98,
+          z: doorCenterZ,
+          w: 0.06,
+          h: 0.84,
+          d: doorW,
+          ry: -angle,
+          color: '#4B5563',
+          id: 'archive_safe'
+        });
+
+        const padDist = 0.54;
+        safeProp.addBox({
+          x: hingeX + Math.sin(angle) * padDist - Math.cos(angle) * 0.04,
+          y: 1.06,
+          z: hingeZ + Math.cos(angle) * padDist + Math.sin(angle) * 0.04,
+          w: 0.03,
+          h: 0.22,
+          d: 0.16,
+          ry: -angle,
+          color: '#141A24',
+          id: 'archive_safe'
+        });
+
+        const dialDist = 0.28;
+        safeProp.addBox({
+          x: hingeX + Math.sin(angle) * dialDist - Math.cos(angle) * 0.045,
+          y: 0.98,
+          z: hingeZ + Math.cos(angle) * dialDist + Math.sin(angle) * 0.045,
+          w: 0.04,
+          h: 0.15,
+          d: 0.15,
+          ry: -angle,
+          color: '#D4AF37',
+          id: 'archive_safe'
+        });
+
+        dynamicProps.push(safeProp);
+      }
+
+      /**
+       * 4. GAME STATE, WALKABLE COLLISION & ELEVATED ISOMETRIC CAMERA
+       */
+      const state = {
+        started: false,
+        activeId: null,
+        safeOpen: false,
+        safeDoorAngle: 0,
+        solved: false,
+        pin: '',
+        hoveredId: null,
+        roofLift: 8.5,
+        roofAlpha: 0.0
+      };
+
+      const player = {
+        x: -3.2,
+        z: -1.9,
+        tx: -3.2,
+        tz: -1.9,
+        ry: 0.35,
+        moving: false,
+        walkPhase: 0,
+        speed: 3.8
+      };
+
+      const cam = {
+        yaw: 0.42,
+        pitch: 0.62,
+        dist: 7.4,
+        tYaw: 0.42,
+        tPitch: 0.62,
+        tDist: 7.4,
+        pos: { x: 0, y: 6, z: 6 },
+        target: { x: -3.2, y: 0.85, z: -1.9 },
+        dragging: false,
+        px: 0,
+        py: 0,
+        dragDist: 0
+      };
+
+      const keys = {};
+
+      function isWalkable(x, z) {
+        const inStudy = (x >= -6.25 && x <= -1.35 && z >= -4.55 && z <= 0.65);
+        const inCorridor = (x >= -0.65 && x <= 2.65 && z >= -4.55 && z <= 2.65);
+        const inArchive = (x >= 3.35 && x <= 7.65 && z >= -4.55 && z <= 0.65);
+        const inDoorStudyCorr = (x >= -1.45 && x <= -0.55 && z >= -2.35 && z <= -1.45);
+        const inDoorCorrArch = (x >= 2.55 && x <= 3.45 && z >= -2.35 && z <= -1.45);
+        const inFrontDoor = (x >= 0.55 && x <= 1.45 && z >= 2.55 && z <= 3.45);
+        const inStreet = (x >= -5.8 && x <= 7.8 && z >= 3.35 && z <= 6.85);
+        return inStudy || inCorridor || inArchive || inDoorStudyCorr || inDoorCorrArch || inFrontDoor || inStreet;
+      }
+
+      /**
+       * 5. TRUE 3D CAMERA BASIS, NEAR-PLANE CLIPPING & 5-PASS RENDERER
+       */
+      let width = window.innerWidth;
+      let height = window.innerHeight;
+      let fov = 560;
+
+      function resizeCanvas() {
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        width = window.innerWidth;
+        height = window.innerHeight;
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        fov = Math.min(width, height) * 0.82;
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+      resizeCanvas();
+
+      function updateCameraTransform() {
+        cam.yaw += (cam.tYaw - cam.yaw) * 0.14;
+        cam.pitch += (cam.tPitch - cam.pitch) * 0.14;
+        cam.dist += (cam.tDist - cam.dist) * 0.14;
+
+        cam.target.x += (player.x - cam.target.x) * 0.16;
+        cam.target.y += (0.85 - cam.target.y) * 0.16;
+        cam.target.z += (player.z - cam.target.z) * 0.16;
+
+        const cp = Math.cos(cam.pitch);
+        const sp = Math.sin(cam.pitch);
+        cam.pos.x = cam.target.x + cam.dist * cp * Math.sin(cam.yaw);
+        cam.pos.y = cam.target.y + cam.dist * sp;
+        cam.pos.z = cam.target.z + cam.dist * cp * Math.cos(cam.yaw);
+      }
+
+      function getCameraBasis() {
+        let fx = cam.target.x - cam.pos.x;
+        let fy = cam.target.y - cam.pos.y;
+        let fz = cam.target.z - cam.pos.z;
+        const fl = Math.hypot(fx, fy, fz) || 1;
+        fx /= fl; fy /= fl; fz /= fl;
+
+        let rx = -fz;
+        let ry = 0;
+        let rz = fx;
+        const rl = Math.hypot(rx, rz) || 1;
+        rx /= rl; rz /= rl;
+
+        const ux = ry * fz - rz * fy;
+        const uy = rz * fx - rx * fz;
+        const uz = rx * fy - ry * fx;
+
+        return {
+          pos: cam.pos,
+          f: { x: fx, y: fy, z: fz },
+          r: { x: rx, y: ry, z: rz },
+          u: { x: ux, y: uy, z: uz }
+        };
+      }
+
+      function worldToCamera(pt, basis) {
+        const dx = pt.x - basis.pos.x;
+        const dy = pt.y - basis.pos.y;
+        const dz = pt.z - basis.pos.z;
+        return {
+          x: dx * basis.r.x + dy * basis.r.y + dz * basis.r.z,
+          y: dx * basis.u.x + dy * basis.u.y + dz * basis.u.z,
+          z: dx * basis.f.x + dy * basis.f.y + dz * basis.f.z
+        };
+      }
+
+      function clipPolygonNearPlane(camPts) {
+        const out = [];
+        const n = camPts.length;
+        if (n < 3) return out;
+
+        for (let i = 0; i < n; i++) {
+          const cur = camPts[i];
+          const prev = camPts[(i + n - 1) % n];
+          const curIn = cur.z >= NEAR_CLIP_Z;
+          const prevIn = prev.z >= NEAR_CLIP_Z;
+
+          if (curIn !== prevIn) {
+            const t = (NEAR_CLIP_Z - prev.z) / ((cur.z - prev.z) || 1e-6);
+            out.push({
+              x: prev.x + (cur.x - prev.x) * t,
+              y: prev.y + (cur.y - prev.y) * t,
+              z: NEAR_CLIP_Z
+            });
+          }
+          if (curIn) {
+            out.push(cur);
+          }
+        }
+        return out;
+      }
+
+      function projectCameraPoint(cp) {
+        const scale = fov / cp.z;
+        return {
+          sx: width * 0.5 + cp.x * scale,
+          sy: height * 0.5 - cp.y * scale,
+          z: cp.z
+        };
+      }
+
+      function pointInPoly(px, py, poly) {
+        let inside = false;
+        for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+          const xi = poly[i].sx, yi = poly[i].sy;
+          const xj = poly[j].sx, yj = poly[j].sy;
+          const intersect = ((yi > py) !== (yj > py)) &&
+            (px < (xj - xi) * (py - yi) / ((yj - yi) || 1e-6) + xi);
+          if (intersect) inside = !inside;
+        }
+        return inside;
+      }
+
+      function drawFace(face, basis, options = {}) {
+        const {
+          alpha = 1.0,
+          offsetY = 0,
+          recordHit = true
+        } = options;
+
+        const toCamX = basis.pos.x - face.center.x;
+        const toCamY = basis.pos.y - (face.center.y + offsetY);
+        const toCamZ = basis.pos.z - face.center.z;
+        const facing = toCamX * face.n.x + toCamY * face.n.y + toCamZ * face.n.z;
+        if (facing <= 0) return;
+
+        const camPts = new Array(face.pts.length);
+        for (let i = 0; i < face.pts.length; i++) {
+          const p = face.pts[i];
+          camPts[i] = worldToCamera(
+            offsetY !== 0 ? { x: p.x, y: p.y + offsetY, z: p.z } : p,
+            basis
+          );
+        }
+        const clipped = clipPolygonNearPlane(camPts);
+        if (clipped.length < 3) return;
+
+        let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+        const screenPts = new Array(clipped.length);
+        for (let i = 0; i < clipped.length; i++) {
+          const sp = projectCameraPoint(clipped[i]);
+          screenPts[i] = sp;
+          if (sp.sx < minX) minX = sp.sx;
+          if (sp.sx > maxX) maxX = sp.sx;
+          if (sp.sy < minY) minY = sp.sy;
+          if (sp.sy > maxY) maxY = sp.sy;
+        }
+
+        if (maxX < -40 || minX > width + 40 || maxY < -40 || minY > height + 40) return;
+
+        const isHovered = (face.id && face.id === state.hoveredId);
+
+        if (alpha < 1.0) ctx.globalAlpha = alpha;
+
+        ctx.beginPath();
+        ctx.moveTo(screenPts[0].sx, screenPts[0].sy);
+        for (let i = 1; i < screenPts.length; i++) {
+          ctx.lineTo(screenPts[i].sx, screenPts[i].sy);
+        }
+        ctx.closePath();
+
+        ctx.fillStyle = shadeColor(face.color, face.shade, isHovered);
+        ctx.fill();
+
+        if (face.stroke) {
+          ctx.strokeStyle = isHovered ? '#B91C1C' : face.stroke;
+          ctx.lineWidth = isHovered ? 2.2 : face.lineWidth;
+          ctx.lineJoin = 'miter';
+          ctx.stroke();
+        }
+
+        if (alpha < 1.0) ctx.globalAlpha = 1.0;
+
+        if (recordHit && face.id) {
+          interactiveScreenPolys.push({
+            id: face.id,
+            pts: screenPts
+          });
+        }
+      }
+
+      /**
+       * Dynamic Architectural Cutaway: computes smooth opacity for walls between the camera and detective.
+       */
+      function updateWallCutaway() {
+        for (let i = 0; i < pass3WallSections.length; i++) {
+          const ws = pass3WallSections[i];
+          let targetAlpha = 1.0;
+
+          if (ws.cutAxis === 'z') {
+            if (ws.cutSide === 1 && cam.pos.z > ws.center.z + 0.25 && player.z < ws.center.z - 0.1) {
+              targetAlpha = 0.08;
+            } else if (ws.cutSide === -1 && cam.pos.z < ws.center.z - 0.25 && player.z > ws.center.z + 0.1) {
+              targetAlpha = 0.08;
+            }
+          } else if (ws.cutAxis === 'x') {
+            if (ws.cutSide === 1 && cam.pos.x > ws.center.x + 0.25 && player.x < ws.center.x - 0.1) {
+              targetAlpha = 0.08;
+            } else if (ws.cutSide === -1 && cam.pos.x < ws.center.x - 0.25 && player.x > ws.center.x + 0.1) {
+              targetAlpha = 0.08;
+            } else if (ws.cutSide === 0) {
+              const camBetween = (cam.pos.x - ws.center.x) * (player.x - ws.center.x) < -0.05;
+              if (camBetween) targetAlpha = 0.12;
+            }
+          }
+
+          ws.alpha += (targetAlpha - ws.alpha) * 0.18;
+        }
+      }
+
+      function renderScene(timeSec) {
+        ctx.clearRect(0, 0, width, height);
+        ctx.fillStyle = '#F7F5F0';
+        ctx.fillRect(0, 0, width, height);
+
+        const basis = getCameraBasis();
+        interactiveScreenPolys.length = 0;
+
+        const dynamicShadows = [];
+        const dynamicProps = [];
+        buildDynamicProps(dynamicShadows, dynamicProps);
+
+        // PASS 1: TILED FLOORS
+        for (let i = 0; i < pass1Floors.length; i++) {
+          drawFace(pass1Floors[i], basis, { recordHit: false });
+        }
+
+        // PASS 2: GROUND CONTACT SHADOWS
+        for (let i = 0; i < pass2Shadows.length; i++) {
+          drawFace(pass2Shadows[i], basis, { alpha: 0.15, recordHit: false });
+        }
+        for (let i = 0; i < dynamicShadows.length; i++) {
+          drawFace(dynamicShadows[i], basis, { alpha: 0.18, recordHit: false });
+        }
+
+        // PASS 3: DYNAMIC ARCHITECTURAL CUTAWAY WALLS
+        updateWallCutaway();
+        const wallFaces = [];
+        for (let i = 0; i < pass3WallSections.length; i++) {
+          const ws = pass3WallSections[i];
+          if (ws.alpha < 0.03) continue;
+          for (let f = 0; f < ws.faces.length; f++) {
+            const wf = ws.faces[f];
+            const dx = wf.center.x - basis.pos.x;
+            const dy = wf.center.y - basis.pos.y;
+            const dz = wf.center.z - basis.pos.z;
+            wallFaces.push({
+              face: wf,
+              alpha: ws.alpha,
+              distSq: dx * dx + dy * dy + dz * dz
+            });
+          }
+        }
+        wallFaces.sort((a, b) => b.distSq - a.distSq);
+        for (let i = 0; i < wallFaces.length; i++) {
+          drawFace(wallFaces[i].face, basis, {
+            alpha: wallFaces[i].alpha,
+            recordHit: false
+          });
+        }
+
+        // PASS 4: 15 INTERACTIVE CLUES, FURNITURE, WITNESSES & DETECTIVE
+        const allProps = pass4StaticProps.concat(dynamicProps);
+        const sortedProps = new Array(allProps.length);
+        for (let i = 0; i < allProps.length; i++) {
+          const p = allProps[i];
+          const dx = p.center.x - basis.pos.x;
+          const dy = p.center.y - basis.pos.y;
+          const dz = p.center.z - basis.pos.z;
+          sortedProps[i] = { prop: p, distSq: dx * dx + dy * dy + dz * dz };
+        }
+        sortedProps.sort((a, b) => b.distSq - a.distSq);
+
+        for (let i = 0; i < sortedProps.length; i++) {
+          const faces = sortedProps[i].prop.faces;
+          for (let f = 0; f < faces.length; f++) {
+            drawFace(faces[f], basis, { recordHit: true });
+          }
+        }
+
+        // PASS 5: PITCHED HOUSE ROOF & BRICK CHIMNEY (lifts off inside house; closes over house when outside)
+        const isOutside = (player.z > 3.0);
+        const targetRoofLift = isOutside ? 0.0 : 8.5;
+        const targetRoofAlpha = isOutside ? 1.0 : 0.0;
+        state.roofLift += (targetRoofLift - state.roofLift) * 0.10;
+        state.roofAlpha += (targetRoofAlpha - state.roofAlpha) * 0.12;
+
+        if (state.roofAlpha > 0.02) {
+          const sortedRoof = new Array(pass5RoofFaces.length);
+          for (let i = 0; i < pass5RoofFaces.length; i++) {
+            const rf = pass5RoofFaces[i];
+            const dx = rf.center.x - basis.pos.x;
+            const dy = (rf.center.y + state.roofLift) - basis.pos.y;
+            const dz = rf.center.z - basis.pos.z;
+            sortedRoof[i] = { face: rf, distSq: dx * dx + dy * dy + dz * dz };
+          }
+          sortedRoof.sort((a, b) => b.distSq - a.distSq);
+
+          for (let i = 0; i < sortedRoof.length; i++) {
+            drawFace(sortedRoof[i].face, basis, {
+              alpha: state.roofAlpha,
+              offsetY: state.roofLift,
+              recordHit: false
+            });
+          }
+        }
+
+        // Subtle floor destination marker when walking by click
+        if (player.moving) {
+          const camPt = worldToCamera({ x: player.tx, y: 0.03, z: player.tz }, basis);
+          if (camPt.z >= NEAR_CLIP_Z) {
+            const mp = projectCameraPoint(camPt);
+            const pulse = 7 + Math.sin(timeSec * 8) * 2;
+            ctx.strokeStyle = '#B91C1C';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(mp.sx - pulse, mp.sy - pulse * 0.6, pulse * 2, pulse * 1.2);
+          }
+        }
+      }
+
+      /**
+       * 6. INPUT HANDLING: WASD/ARROWS, MOUSE ORBIT, SCROLL ZOOM, HOVER & CLICK INTERACTION
+       */
+      function isModalOpen() {
+        return !state.started ||
+          state.activeId !== null ||
+          !document.getElementById('safe-overlay').classList.contains('hidden') ||
+          state.solved;
+      }
+
+      function hitTest(cx, cy) {
+        for (let i = interactiveScreenPolys.length - 1; i >= 0; i--) {
+          if (pointInPoly(cx, cy, interactiveScreenPolys[i].pts)) {
+            return interactiveScreenPolys[i].id;
+          }
+        }
+        return null;
+      }
+
+      function screenToFloor(cx, cy) {
+        const basis = getCameraBasis();
+        const nx = (cx - width * 0.5) / fov;
+        const ny = (height * 0.5 - cy) / fov;
+
+        const dirX = basis.f.x + nx * basis.r.x + ny * basis.u.x;
+        const dirY = basis.f.y + nx * basis.r.y + ny * basis.u.y;
+        const dirZ = basis.f.z + nx * basis.r.z + ny * basis.u.z;
+
+        if (Math.abs(dirY) < 1e-4) return null;
+        const t = -basis.pos.y / dirY;
+        if (t <= 0) return null;
+
+        return {
+          x: basis.pos.x + dirX * t,
+          z: basis.pos.z + dirZ * t
+        };
+      }
+
+      function handleSceneClick(cx, cy) {
+        if (isModalOpen()) return;
+
+        const hitId = hitTest(cx, cy);
+        if (hitId) {
+          openClue(hitId);
+          return;
+        }
+
+        const floorPt = screenToFloor(cx, cy);
+        if (floorPt && isWalkable(floorPt.x, floorPt.z)) {
+          player.tx = floorPt.x;
+          player.tz = floorPt.z;
+          player.moving = true;
+        }
+      }
+
+      canvas.addEventListener('mousedown', e => {
+        if (isModalOpen()) return;
+        cam.dragging = true;
+        cam.px = e.clientX;
+        cam.py = e.clientY;
+        cam.dragDist = 0;
+      });
+
+      window.addEventListener('mousemove', e => {
+        if (cam.dragging && !isModalOpen()) {
+          const dx = e.clientX - cam.px;
+          const dy = e.clientY - cam.py;
+          cam.dragDist += Math.hypot(dx, dy);
+          cam.px = e.clientX;
+          cam.py = e.clientY;
+          cam.tYaw -= dx * 0.0075;
+          cam.tPitch = Math.max(0.32, Math.min(1.08, cam.tPitch + dy * 0.0065));
+          canvas.style.cursor = 'grabbing';
+        } else if (!isModalOpen()) {
+          const hit = hitTest(e.clientX, e.clientY);
+          state.hoveredId = hit;
+          canvas.style.cursor = hit ? 'pointer' : 'grab';
+        } else {
+          state.hoveredId = null;
+          canvas.style.cursor = 'default';
+        }
+      });
+
+      window.addEventListener('mouseup', e => {
+        if (cam.dragging) {
+          cam.dragging = false;
+          if (cam.dragDist < 6) {
+            handleSceneClick(e.clientX, e.clientY);
+          }
+        }
+      });
+
+      canvas.addEventListener('wheel', e => {
+        if (isModalOpen()) return;
+        e.preventDefault();
+        cam.tDist = Math.max(4.4, Math.min(11.5, cam.tDist + e.deltaY * 0.005));
+      }, { passive: false });
+
+      // Touch drag to orbit & tap to inspect/walk
+      canvas.addEventListener('touchstart', e => {
+        if (isModalOpen()) return;
+        if (e.touches.length === 1) {
+          cam.dragging = true;
+          cam.px = e.touches[0].clientX;
+          cam.py = e.touches[0].clientY;
+          cam.dragDist = 0;
+        }
+      }, { passive: true });
+
+      canvas.addEventListener('touchmove', e => {
+        if (isModalOpen()) return;
+        if (e.touches.length === 1 && cam.dragging) {
+          const dx = e.touches[0].clientX - cam.px;
+          const dy = e.touches[0].clientY - cam.py;
+          cam.dragDist += Math.hypot(dx, dy);
+          cam.px = e.touches[0].clientX;
+          cam.py = e.touches[0].clientY;
+          cam.tYaw -= dx * 0.008;
+          cam.tPitch = Math.max(0.32, Math.min(1.08, cam.tPitch + dy * 0.007));
+        }
+      }, { passive: true });
+
+      canvas.addEventListener('touchend', e => {
+        if (cam.dragging && cam.dragDist < 10 && e.changedTouches.length > 0) {
+          handleSceneClick(e.changedTouches[0].clientX, e.changedTouches[0].clientY);
+        }
+        cam.dragging = false;
+      });
+
+      window.addEventListener('keydown', e => {
+        keys[e.code] = true;
+        if (!document.getElementById('safe-overlay').classList.contains('hidden')) {
+          if (e.key >= '0' && e.key <= '9') enterSafeDigit(e.key);
+          else if (e.key === 'Backspace') clearSafeCode();
+          else if (e.key === 'Enter') verifySafeCode();
+          else if (e.key === 'Escape') closeSafeModal();
+          return;
+        }
+        if (e.key === 'Escape' && state.activeId) {
+          closeInspectModal();
+        }
+      });
+
+      window.addEventListener('keyup', e => {
+        keys[e.code] = false;
+      });
+
+      /**
+       * 7. MODALS, SAFE KEYPAD (9611) & CASE-SOLVED FLOW
+       */
+      function startInvestigation() {
+        state.started = true;
+        const overlay = document.getElementById('title-overlay');
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.classList.add('hidden'), 220);
+        document.getElementById('reset-btn').classList.remove('hidden');
+      }
+
+      const CLUE_STAND_POS = {
+        study_clock:          { x: -4.2, z: -4.1 },
+        study_diary:          { x: -4.2, z: -2.6 },
+        study_rug_blood:      { x: -3.2, z: -1.85 },
+        study_bookshelf:      { x: -5.7, z: -2.2 },
+        study_mug:            { x: -2.9, z: -2.3 },
+        corridor_blood_trail: { x: 0.9, z: -1.2 },
+        corridor_coat_stand:  { x: -0.2, z: 1.6 },
+        corridor_notes:       { x: 1.0, z: -3.5 },
+        corridor_mirror_key:  { x: 2.1, z: 0.3 },
+        archive_safe:         { x: 7.2, z: -2.0 },
+        biology_textbook:     { x: 7.2, z: -2.0 },
+        archive_ledger:       { x: 5.6, z: -3.2 },
+        archive_lab_notes:    { x: 5.4, z: -0.7 },
+        street_watchman:      { x: -0.3, z: 3.8 },
+        street_classmate:     { x: 3.1, z: 4.5 },
+        street_trash_bin:     { x: 1.7, z: 3.8 }
+      };
+
+      function openClue(id) {
+        const clue = CLUES[id];
+        if (!clue) return;
+
+        state.hoveredId = null;
+
+        const stand = CLUE_STAND_POS[id];
+        if (stand && isWalkable(stand.x, stand.z)) {
+          player.tx = stand.x;
+          player.tz = stand.z;
+          player.moving = true;
+        }
+
+        if (clue.isSafe) {
+          if (state.safeOpen) {
+            openClue('biology_textbook');
+          } else {
+            openSafeModal();
+          }
+          return;
+        }
+
+        if (clue.isBook) {
+          state.solved = true;
+          document.getElementById('solved-overlay').classList.remove('hidden');
+          return;
+        }
+
+        state.activeId = id;
+        const tagEl = document.getElementById('inspect-tag');
+        tagEl.textContent = clue.tag;
+        tagEl.className = 'category-tag ' + clue.tag.toLowerCase();
+
+        document.getElementById('inspect-title').textContent = clue.title;
+        document.getElementById('inspect-text').textContent = clue.text;
+        document.getElementById('inspect-overlay').classList.remove('hidden');
+      }
+
+      function closeInspectModal() {
+        state.activeId = null;
+        document.getElementById('inspect-overlay').classList.add('hidden');
+      }
+
+      function openSafeModal() {
+        state.pin = '';
+        refreshSafeDisplay();
+        document.getElementById('safe-status').textContent = '';
+        document.getElementById('safe-overlay').classList.remove('hidden');
+      }
+
+      function closeSafeModal() {
+        document.getElementById('safe-overlay').classList.add('hidden');
+      }
+
+      function refreshSafeDisplay() {
+        const formatted = [0, 1, 2, 3].map(i => state.pin[i] || '_').join(' ');
+        document.getElementById('safe-display').textContent = formatted;
+      }
+
+      function enterSafeDigit(d) {
+        if (state.pin.length >= 4) return;
+        state.pin += d;
+        document.getElementById('safe-status').textContent = '';
+        refreshSafeDisplay();
+        if (state.pin.length === 4) {
+          setTimeout(verifySafeCode, 160);
+        }
+      }
+
+      function clearSafeCode() {
+        state.pin = '';
+        document.getElementById('safe-status').textContent = '';
+        refreshSafeDisplay();
+      }
+
+      function verifySafeCode() {
+        if (state.pin === '9611') {
+          state.safeOpen = true;
+          document.getElementById('safe-overlay').classList.add('hidden');
+          cam.tYaw = -0.62;
+          cam.tDist = 5.4;
+        } else {
+          document.getElementById('safe-status').textContent = 'INCORRECT CODE';
+          state.pin = '';
+          refreshSafeDisplay();
+        }
+      }
+
+      function resetInvestigation() {
+        state.activeId = null;
+        state.safeOpen = false;
+        state.safeDoorAngle = 0;
+        state.solved = false;
+        state.pin = '';
+        state.hoveredId = null;
+
+        player.x = -3.2;
+        player.z = -1.9;
+        player.tx = -3.2;
+        player.tz = -1.9;
+        player.ry = 0.35;
+        player.moving = false;
+        player.walkPhase = 0;
+
+        cam.tYaw = 0.42;
+        cam.tPitch = 0.62;
+        cam.tDist = 7.4;
+
+        document.getElementById('inspect-overlay').classList.add('hidden');
+        document.getElementById('safe-overlay').classList.add('hidden');
+        document.getElementById('solved-overlay').classList.add('hidden');
+      }
+
+      // Bind UI Buttons
+      document.getElementById('investigate-btn').addEventListener('click', startInvestigation);
+      document.getElementById('reset-btn').addEventListener('click', resetInvestigation);
+      document.getElementById('inspect-x').addEventListener('click', closeInspectModal);
+      document.getElementById('inspect-close').addEventListener('click', closeInspectModal);
+      document.getElementById('safe-x').addEventListener('click', closeSafeModal);
+      document.getElementById('safe-clear').addEventListener('click', clearSafeCode);
+      document.getElementById('safe-unlock').addEventListener('click', verifySafeCode);
+      document.getElementById('play-again-btn').addEventListener('click', resetInvestigation);
+
+      document.querySelectorAll('.key-btn[data-digit]').forEach(btn => {
+        btn.addEventListener('click', () => enterSafeDigit(btn.getAttribute('data-digit')));
+      });
+
+      /**
+       * 8. MAIN 60FPS GAME LOOP
+       */
+      buildWorld();
+      let prevTime = performance.now();
+
+      function loop(now) {
+        requestAnimationFrame(loop);
+        const dt = Math.min((now - prevTime) / 1000, 0.05);
+        prevTime = now;
+
+        // Gentle live orbit on the start screen so the 3D scene is alive behind the card
+        if (!state.started) {
+          cam.tYaw = 0.42 + Math.sin(now * 0.00045) * 0.28;
+        }
+
+        // Player movement via WASD / Arrow keys or Click-to-Walk
+        if (state.started && !isModalOpen()) {
+          let moveForward = 0;
+          let moveRight = 0;
+          if (keys['KeyW'] || keys['ArrowUp']) moveForward += 1;
+          if (keys['KeyS'] || keys['ArrowDown']) moveForward -= 1;
+          if (keys['KeyD'] || keys['ArrowRight']) moveRight += 1;
+          if (keys['KeyA'] || keys['ArrowLeft']) moveRight -= 1;
+
+          if (moveForward !== 0 || moveRight !== 0) {
+            player.moving = false;
+            const fwdX = -Math.sin(cam.yaw);
+            const fwdZ = -Math.cos(cam.yaw);
+            const rightX = Math.cos(cam.yaw);
+            const rightZ = -Math.sin(cam.yaw);
+
+            let vx = fwdX * moveForward + rightX * moveRight;
+            let vz = fwdZ * moveForward + rightZ * moveRight;
+            const vLen = Math.hypot(vx, vz) || 1;
+            vx = (vx / vLen) * player.speed * dt;
+            vz = (vz / vLen) * player.speed * dt;
+
+            if (isWalkable(player.x + vx, player.z)) player.x += vx;
+            if (isWalkable(player.x, player.z + vz)) player.z += vz;
+            player.ry = Math.atan2(vx, vz);
+            player.walkPhase += dt * 11;
+          } else if (player.moving) {
+            const dx = player.tx - player.x;
+            const dz = player.tz - player.z;
+            const dist = Math.hypot(dx, dz);
+            if (dist > 0.08) {
+              const step = Math.min(dist, player.speed * dt);
+              const nx = player.x + (dx / dist) * step;
+              const nz = player.z + (dz / dist) * step;
+              if (isWalkable(nx, nz)) {
+                player.x = nx;
+                player.z = nz;
+                player.ry = Math.atan2(dx, dz);
+                player.walkPhase += dt * 11;
+              } else {
+                player.moving = false;
+              }
+            } else {
+              player.moving = false;
+            }
+          } else {
+            player.walkPhase *= 0.85;
+          }
+        }
+
+        // Smooth 3D Steel Safe Door Swing Animation
+        const targetAngle = state.safeOpen ? 1.85 : 0;
+        state.safeDoorAngle += (targetAngle - state.safeDoorAngle) * 0.12;
+
+        updateCameraTransform();
+        renderScene(now / 1000);
+      }
+
+      requestAnimationFrame(loop);
+    })();
+  </script>
+</body>
+</html>
